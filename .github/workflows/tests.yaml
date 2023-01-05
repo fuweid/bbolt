@@ -31,7 +31,7 @@ jobs:
             CPU=4 make test
             ;;
           linux-amd64-unit-test-4-cpu-race)
-            GOGC=30 CPU=4 ENABLE_RACE=true make test
+            CPU=4 ENABLE_RACE=true make test
             ;;
           *)
             echo "Failed to find target"
