@@ -1138,6 +1138,7 @@ func (cmd *benchCommand) ParseFlags(args []string) (*BenchOptions, error) {
 	fs.Int64Var(&options.Iterations, "count", 1000, "")
 	fs.Int64Var(&options.BatchSize, "batch-size", 0, "")
 	fs.IntVar(&options.KeySize, "key-size", 8, "")
+	fs.IntVar(&options.KeySpaceSize, "key-space-size", 8, "")
 	fs.IntVar(&options.ValueSize, "value-size", 32, "")
 	fs.StringVar(&options.CPUProfile, "cpuprofile", "", "")
 	fs.StringVar(&options.MemProfile, "memprofile", "", "")
@@ -1243,7 +1244,7 @@ func (cmd *benchCommand) runWritesWithSource(db *bolt.DB, options *BenchOptions,
 				value := make([]byte, options.ValueSize)
 
 				// Write key as uint32.
-				binary.BigEndian.PutUint32(key, keySource())
+				binary.BigEndian.PutUint32(key, uint32(int(keySource())%options.KeySpaceSize))
 
 				// Insert key/value.
 				if err := b.Put(key, value); err != nil {
@@ -1273,7 +1274,7 @@ func (cmd *benchCommand) runWritesNestedWithSource(db *bolt.DB, options *BenchOp
 
 			// Create bucket key.
 			name := make([]byte, options.KeySize)
-			binary.BigEndian.PutUint32(name, keySource())
+			binary.BigEndian.PutUint32(name, uint32(int(keySource())%options.KeySpaceSize))
 
 			// Create bucket.
 			b, err := top.CreateBucketIfNotExists(name)
@@ -1288,7 +1289,7 @@ func (cmd *benchCommand) runWritesNestedWithSource(db *bolt.DB, options *BenchOp
 				var value = make([]byte, options.ValueSize)
 
 				// Generate key as uint32.
-				binary.BigEndian.PutUint32(key, keySource())
+				binary.BigEndian.PutUint32(key, uint32(int(keySource())%options.KeySpaceSize))
 
 				// Insert value into subbucket.
 				if err := b.Put(key, value); err != nil {
@@ -1505,6 +1506,7 @@ type BenchOptions struct {
 	Iterations    int64
 	BatchSize     int64
 	KeySize       int
+	KeySpaceSize  int
 	ValueSize     int
 	CPUProfile    string
 	MemProfile    string
