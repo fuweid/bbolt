@@ -81,6 +81,7 @@ test-failpoint:
 	@echo "[failpoint] array freelist test"
 	BBOLT_VERIFY=all TEST_FREELIST_TYPE=array go test -v ${TESTFLAGS} -timeout 30m ./tests/failpoint
 
-.PHONY: root-test # run tests that require root
-root-test:
+.PHONY: test-robustness # run robustness tests that require root
+test-robustness:
 	go test -v ${TESTFLAGS} ./tests/dmflakey -test.root
+	go test -v ${TESTFLAGS} ./tests/robustness -test.root
