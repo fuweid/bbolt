@@ -310,6 +310,8 @@ func (b *Bucket) Get(key []byte) []byte {
 	return v
 }
 
+var ModifyKeyBeforeStore func(original []byte) []byte
+
 // Put sets the value for a key in the bucket.
 // If the key exist then its previous value will be overwritten.
 // Supplied value must remain valid for the life of the transaction.
@@ -339,6 +341,9 @@ func (b *Bucket) Put(key []byte, value []byte) error {
 	// Insert into node.
 	// Tip: Use a new variable `newKey` instead of reusing the existing `key` to prevent
 	// it from being marked as leaking, and accordingly cannot be allocated on stack.
+	if ModifyKeyBeforeStore != nil {
+		key = ModifyKeyBeforeStore(key)
+	}
 	newKey := cloneBytes(key)
 	c.node().put(newKey, newKey, value, 0, 0)
 
